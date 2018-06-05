@@ -4,11 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PageProperty extends Model
+class Pages extends Model
 {
-    protected $fillable = ['propertyKey', 'propertyType'];    
+    protected $fillable = ['title', 'description'];
 
-    
     
     /**
      * Get the comments for the blog post.

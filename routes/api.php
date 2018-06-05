@@ -21,8 +21,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::post('user/register', 'APIRegisterController@register');
 Route::post('user/login', 'APILoginController@login');
+Route::resource('banner-type', 'BannerTypeController');
 Route::resource('banner', 'BannerController');
 Route::resource('page-property', 'PagePropertyController');
+Route::resource('page', 'PagesController');
+Route::post('page/update', 'PagesController@update');
 Route::middleware('jwt.auth')->get('users', function(Request $request) {
     return auth()->user();
 });

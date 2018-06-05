@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBannersTable extends Migration
+class CreatePagePropertyValuesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,11 @@ class CreateBannersTable extends Migration
      */
     public function up()
     {
-        Schema::create('banners', function (Blueprint $table) {
+        Schema::create('page_property_values', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->string('bannerimg')->nullable();
-            $table->integer('banner_type_id')->unsigned();
+            $table->text('propertyValue');
+            $table->text('pages_id');
+            $table->text('page_property_id');
             $table->timestamps();
         });
     }
@@ -30,6 +29,6 @@ class CreateBannersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('banners');
+        Schema::dropIfExists('page_property_values');
     }
 }

@@ -98,6 +98,12 @@ class PagesController extends Controller
             
             $propertyArray = $request->get('properties');
             if(is_array($propertyArray)){
+
+                // code by nandeesh
+                $existingPropertyArray = App\Pages::has('page_property_values')->get();
+                return $existingPropertyArray;
+                //end of code
+
                 foreach($propertyArray as $key=>$property){
                     
                     if(array_key_exists('propertyId',$property)){
@@ -146,5 +152,10 @@ class PagesController extends Controller
             echo json_encode($data);
         }       
         
+    }
+
+    public function destroy($id)
+    {
+
     }
 }

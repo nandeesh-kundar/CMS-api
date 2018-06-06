@@ -81,16 +81,13 @@ class BannerController extends Controller
       }
       $banners->description = $request->get('description');
       $banners->title = $request->get('title');
-      $banners->bannerimg = $request->get('bannerimg');
       $banners->banner_type_id = $request->get('banner_types_id');
 
-      // $image=$request->file('bannerimg');
-      // $getimageName = time().'.'.$image->getClientOriginalExtension();
-      // $request->image->move(public_path('uploads'), $getimageName);
-         
-      // $product->image =$getimageName; 
-      // Same as above
-      // $banners['bannerimg'] =$getimageName;
+      $image = $request->file('bannerimg');
+      $input['bannerimg'] = time().'.'.$image->getClientOriginalExtension();
+      $destinationPath = public_path('/uploads');
+      $image->move($destinationPath, $input['bannerimg']);
+      $banners->bannerimg = $input['bannerimg'];
       
       $ss= $banners->save();
       return $banner_edit = response()->json($banners->toArray(), 200);

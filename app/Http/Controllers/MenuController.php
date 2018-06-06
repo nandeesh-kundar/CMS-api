@@ -70,4 +70,66 @@ class MenuController extends Controller
             echo json_encode($data);
         }
     }
+
+
+    public function update(Request $request, $id)
+    {
+        $menus = Menu::find($id);
+        $validatedData = Validator::make($request->all(),[
+            'title' => 'required|max:191',
+            'linkType' => 'required|in:custom,page',
+            'menuType' => 'required|in:primary,page',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json($validatedData->errors());
+        }
+        if($request->linkType == 'custom'){
+            $validatedData = Validator::make($request->all(),[
+                'customLink' => 'required',
+            ]);
+            if ($validatedData->fails()) {
+                return response()->json($validatedData->errors());
+            }
+        }else{
+            $validatedData = Validator::make($request->all(),[
+                'pageSlug' => 'required',
+            ]);
+            if ($validatedData->fails()) {
+                return response()->json($validatedData->errors());
+            }
+        }
+        if($request->parent_id != null){
+            $validatedData = Validator::make($request->all(),[
+                'parent_id' => 'exists:menus,id',
+            ]);
+            if ($validatedData->fails()) {
+                return response()->json($validatedData->errors());
+            }
+            $menus->title = $request->title;
+            $menus->linkType = $request->linkType;
+            $menus->menuType = $request->menuType;
+            $menus->customLink = $request->customLink;
+            $menus->pageSlug = $request->pageSlug;
+            $menus->parent_id = $request->parent_id;
+        }else{
+            $menus->title = $request->title;
+            $menus->linkType = $request->linkType;
+            $menus->menuType = $request->menuType;
+            $menus->customLink = $request->customLink;
+            $menus->pageSlug = $request->pageSlug;
+            $menus->parent_id = $request->parent_id;
+        }
+        $menus->save();
+        $status= response()->json($menus, 200);
+        if($status)							
+        {
+            $data = array('success' =>true, 'message' => 'Success! Page property created successfully.');
+            echo json_encode($data);
+        }
+        else
+        {
+            $data = array('success' =>false, 'message' => 'Failed! Something went wrong. Please try again.');
+            echo json_encode($data);
+        }
+    }
 }

@@ -16,8 +16,8 @@ class CreatePagePropertyValuesTable extends Migration
         Schema::create('page_property_values', function (Blueprint $table) {
             $table->increments('id');
             $table->text('propertyValue');
-            $table->text('pages_id');
-            $table->text('page_property_id');
+            $table->integer('pages_id');
+            $table->integer('page_property_id');
             $table->timestamps();
         });
     }

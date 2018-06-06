@@ -18,10 +18,21 @@ class PagesController extends Controller
         if ($validatedData->fails()) {
             return response()->json($validatedData->errors());
         }
+        $string=strip_tags($request->title);
+        // Replace special characters with white space
+        $string=preg_replace('/[^A-Za-z0-9-]+/', ' ', $string);
+        // Trim White Spaces and both sides
+        $string=trim($string);
+        // Replace whitespaces with Hyphen (-) 
+        $string=preg_replace('/[^A-Za-z0-9-]+/','-', $string); 
+        // Conver final string to lowercase
+        $slug=strtolower($string);
+
         $files= $request->file('properties');
-        $pages = Pages::create(
-          ['title'=>$page['title'] = $request->title,
-           'description'=>$page['description']= $request->description,
+        $pages = Pages::create([
+            'title'=> $request->title,
+            'slug'=> $slug,
+            'description'=> $request->description,
         ]);
 
 
@@ -93,6 +104,8 @@ class PagesController extends Controller
             $files=[];
         }
         $pages->title=$request->get('title');
+        $slug=preg_replace('/[^A-Za-z0-9-]+/', '-', strtolower($pages->title));
+        $pages->slug=$slug;
         $pages->save();
         $status= response()->json($pages, 200);
         if($status)							

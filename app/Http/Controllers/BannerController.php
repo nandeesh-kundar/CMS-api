@@ -19,23 +19,23 @@ class BannerController extends Controller
       }
       //  return Article::create($request->all());
 
-      //$image = $request->file('bannerimg');
-    //  $input['bannerimg'] = time().'.'.$image->getClientOriginalExtension();
-     // $destinationPath = public_path('/uploads');
-     // $image->move($destinationPath, $input['bannerimg']);
+      $image = $request->file('bannerimg');
+      $input['bannerimg'] = time().'.'.$image->getClientOriginalExtension();
+      $destinationPath = public_path('/uploads');
+      $image->move($destinationPath, $input['bannerimg']);
 
       $bannerType = BannerType::find($request->banner_types_id);
       $banners = $bannerType->banners()->create([
         'title'=>$banner['title']= $request->title,
         'description'=>$banner['description']= $request->description,
-        'bannerimg'=>$banner['bannerimg']= null,
+        'bannerimg'=>$banner['bannerimg']= $input['bannerimg']
       ]);
 
       $status= response()->json($banners, 200);
       if($status)							
       {
       // $data = array('success' =>true, 'img_url'=>$input['bannerimg'], 'message' => 'Thanks! We have received your message.');
-        $data = array('success' =>true, 'message' => 'Thanks! We have received your message.');
+        $data = array('success' =>true, 'img_url'=>$input['bannerimg'], 'message' => 'Thanks! We have received your message.');
         echo json_encode($data);
       }
       else

@@ -15,7 +15,7 @@ class CreateMenusTable extends Migration
     {
         Schema::create('menus', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('title')->unique();
+            $table->string('title');
             $table->enum('linkType', ['custom', 'page']);
             $table->string('pageSlug')->nullable();
             $table->text('customLink')->nullable();

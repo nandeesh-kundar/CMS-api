@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Menu;
+use Validator;
 use Illuminate\Http\Request;
 
 class MenuController extends Controller
@@ -9,8 +11,9 @@ class MenuController extends Controller
     public function store(Request $request)
     {
         $validatedData = Validator::make($request->all(),[
-            'title' => 'required|unique:menus|max:191',
+            'title' => 'required|max:191',
             'linkType' => 'required|in:custom,page',
+            'menuType' => 'required|in:primary,page',
         ]);
         if ($validatedData->fails()) {
             return response()->json($validatedData->errors());
@@ -30,12 +33,32 @@ class MenuController extends Controller
                 return response()->json($validatedData->errors());
             }
         }
-        $pageProperties = PageProperty::create(
-          ['propertyKey'=>$pageProperty['propertyKey']= $request->propertyKey,
-           'propertyType'=>$pageProperty['propertyType']= $request->propertyType,
-        ]);
-
-        $status= response()->json($pageProperties, 200);
+        if($request->parent_id != null){
+            $validatedData = Validator::make($request->all(),[
+                'parent_id' => 'exists:menus,id',
+            ]);
+            if ($validatedData->fails()) {
+                return response()->json($validatedData->errors());
+            }
+            $parentMenu = Menu::find($request->parent_id);
+            $menus = $parentMenu->children()->create(
+              ['title'=> $request->title,
+               'linkType'=> $request->linkType,
+               'menuType'=> $request->menuType,
+               'customLink'=> $request->customLink,
+               'pageSlug'=> $request->pageSlug
+            ]);
+        }else{
+            $menus = Menu::create(
+              ['title'=> $request->title,
+               'linkType'=> $request->linkType,
+               'menuType'=> $request->menuType,
+               'customLink'=> $request->customLink,
+               'pageSlug'=> $request->pageSlug,
+               'parent_id'=> $request->parent_id,
+            ]);
+        }
+        $status= response()->json($menus, 200);
         if($status)							
         {
             $data = array('success' =>true, 'message' => 'Success! Page property created successfully.');

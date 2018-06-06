@@ -56,6 +56,9 @@ class AuthController extends Controller
                 'msg' => 'Invalid Credentials.'
             ], 400);
         }
+        $user = \Auth::user();
+        $customClaims=['user_id'=>$user->id, 'name'=>$user->name, 'email'=>$user->email];
+        $token = JWTAuth::fromUser(\Auth::user(), $customClaims);
         return response([
             'status' => 'success',
             'token' => $token

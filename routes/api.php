@@ -31,7 +31,7 @@ Route::resource('banner-type', 'BannerTypeController');
 Route::resource('banner', 'BannerController');
 Route::resource('page-property', 'PagePropertyController');
 Route::resource('page', 'PagesController');//->middleware('route.auth');
-Route::post('page/update', 'PagesController@update');
+Route::post('page/update', 'PagesController@update')->middleware('route.auth');
 Route::middleware('jwt.auth')->get('users', function(Request $request) {
     return auth()->user();
 });

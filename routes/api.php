@@ -19,12 +19,18 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 }); 
 
-Route::post('user/register', 'APIRegisterController@register');
-Route::post('user/login', 'APILoginController@login');
+Route::post('auth/register', 'AuthController@register');
+Route::post('auth/login', 'AuthController@login');
+Route::group(['middleware' => 'jwt.auth'], function(){
+    Route::post('auth/logout', 'AuthController@logout');
+ });
+Route::middleware('jwt.refresh')->get('/token/refresh', 'AuthController@refresh');
+
+
 Route::resource('banner-type', 'BannerTypeController');
 Route::resource('banner', 'BannerController');
 Route::resource('page-property', 'PagePropertyController');
-Route::resource('page', 'PagesController');
+Route::resource('page', 'PagesController');//->middleware('route.auth');
 Route::post('page/update', 'PagesController@update');
 Route::middleware('jwt.auth')->get('users', function(Request $request) {
     return auth()->user();

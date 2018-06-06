@@ -71,7 +71,7 @@ class PagesController extends Controller
 
     public function update(Request $request)
     { 
-        
+      
         $validatedData = Validator::make($request->all(),[
             'title' => 'required|max:191',
             'mainId' => 'required|max:191',
@@ -89,6 +89,9 @@ class PagesController extends Controller
             }
         }
         $files= $request->file('properties');
+        if(empty($files)){
+            $files=[];
+        }
         $pages->title=$request->get('title');
         $pages->save();
         $status= response()->json($pages, 200);
@@ -99,10 +102,23 @@ class PagesController extends Controller
             $propertyArray = $request->get('properties');
             if(is_array($propertyArray)){
 
-                // code by nandeesh
-                $existingPropertyArray = App\Pages::has('page_property_values')->get();
-                return $existingPropertyArray;
-                //end of code
+                // // code by nandeesh
+                $existingPropertyArray = $pages->page_property_values()->get();
+                $existId=[];
+                
+                
+                foreach($propertyArray as $key=>$property){
+                    if(array_key_exists('mainId',$property)){
+                        $existId[]=$property['mainId'];
+                    }
+                }
+
+                foreach($existingPropertyArray as $prop){
+                    if(!(in_array($prop->id, $existId))){
+                        $prop->delete();
+                    }
+                }
+                // //end of code
 
                 foreach($propertyArray as $key=>$property){
                     

@@ -182,6 +182,11 @@ class PagesController extends Controller
         }       
         
     }
+    public function index()
+    {
+      $pages= Pages::all()->toArray(); 
+       return response()->json($pages, 200);
+    } 
 
     public function destroy($id)
     {

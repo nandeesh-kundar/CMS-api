@@ -188,8 +188,20 @@ class PagesController extends Controller
        return response()->json($pages, 200);
     } 
 
+
+    public function pageSlug()
+    {
+      $menu= Pages::select('title','slug')->get()->toArray(); 
+      return response()->json($menu, 200);
+    }
+
     public function destroy($id)
     {
 
+    }
+
+    public function show($id)
+    {
+        return response("hello");
     }
 }

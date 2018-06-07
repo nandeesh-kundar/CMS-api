@@ -13,7 +13,7 @@ class MenuController extends Controller
         $validatedData = Validator::make($request->all(),[
             'title' => 'required|max:191',
             'linkType' => 'required|in:custom,page',
-            'menuType' => 'required|in:primary,page',
+            'menuType' => 'required|in:primary,secondary,sidebar1,sidebar2,footer1,footer2,footer3,footer4,social'
         ]);
         if ($validatedData->fails()) {
             return response()->json($validatedData->errors());
@@ -61,7 +61,8 @@ class MenuController extends Controller
         $status= response()->json($menus, 200);
         if($status)							
         {
-            $data = array('success' =>true, 'message' => 'Success! Page property created successfully.');
+            $menu= Menu::with('children', 'parent')->where('id',$menus->id)->get()->toArray(); 
+            $data = array('success' =>true, 'message' => 'Success! Page property created successfully.', 'data'=>$menu[0]);
             echo json_encode($data);
         }
         else
@@ -78,7 +79,7 @@ class MenuController extends Controller
         $validatedData = Validator::make($request->all(),[
             'title' => 'required|max:191',
             'linkType' => 'required|in:custom,page',
-            'menuType' => 'required|in:primary,page',
+            'menuType' => 'required|in:primary,secondary,sidebar1,sidebar2,footer1,footer2,footer3,footer4,social',
         ]);
         if ($validatedData->fails()) {
             return response()->json($validatedData->errors());
@@ -89,7 +90,7 @@ class MenuController extends Controller
             ]);
             if ($validatedData->fails()) {
                 return response()->json($validatedData->errors());
-            }
+            } 
         }else{
             $validatedData = Validator::make($request->all(),[
                 'pageSlug' => 'required',
@@ -123,7 +124,8 @@ class MenuController extends Controller
         $status= response()->json($menus, 200);
         if($status)							
         {
-            $data = array('success' =>true, 'message' => 'Success! Page property created successfully.');
+            $menu= Menu::with('children', 'parent')->where('id',$menus->id)->get()->toArray(); 
+            $data = array('success' =>true, 'message' => 'Success! Page property created successfully.','data'=>$menu[0]);
             echo json_encode($data);
         }
         else
@@ -136,7 +138,15 @@ class MenuController extends Controller
 
     public function index()
     {
-      $menu= Menu::with('children')->get()->toArray(); 
+      $menu= Menu::with('children', 'parent')->get()->toArray(); 
       return response()->json($menu, 200);
+    }
+
+
+    public function destroy($id)
+    {
+      $menu= Menu::find($id);
+      $menu->delete();
+      return response()->json($menu->toArray(), 200);
     }
 }

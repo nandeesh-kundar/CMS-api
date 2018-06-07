@@ -132,4 +132,11 @@ class MenuController extends Controller
             echo json_encode($data);
         }
     }
+
+
+    public function index()
+    {
+      $menu= Menu::with('children')->get()->toArray(); 
+      return response()->json($menu, 200);
+    }
 }

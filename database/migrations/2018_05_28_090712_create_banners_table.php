@@ -13,13 +13,27 @@ class CreateBannersTable extends Migration
      */
     public function up()
     {
+        Schema::create('banner_types', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('typeName')->unique();
+            $table->timestamps();
+        });
+
+
         Schema::create('banners', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('bannerimg')->nullable();
-            $table->integer('banner_type_id')->unsigned();
             $table->timestamps();
+        });
+
+        Schema::table('banners', function($table) {
+            $table->unsignedInteger('banner_types_id');
+            $table->foreign('banner_types_id')
+                    ->references('id')
+                    ->on('banner_types')
+                    ->onDelete('cascade');
         });
     }
 
@@ -31,5 +45,6 @@ class CreateBannersTable extends Migration
     public function down()
     {
         Schema::dropIfExists('banners');
+        Schema::dropIfExists('banner_types');
     }
 }

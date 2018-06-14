@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-Use App\BannerType;
 use Validator;
+Use App\BannerType;
+use Illuminate\Http\Request;
 
 class BannerTypeController extends Controller
 {
@@ -14,7 +14,7 @@ class BannerTypeController extends Controller
             'typeName' => 'required|unique:banner_types|max:191',
         ]);
         if ($validatedData->fails()) {
-            return response()->json($validatedData->errors());
+            return response()->json($validatedData->errors(),400);
         }
         $bannerTypes = BannerType::create([
             'typeName'=>$bannerType['typeName']= $request->typeName,
@@ -23,13 +23,13 @@ class BannerTypeController extends Controller
         $status= response()->json($bannerTypes, 200);
         if($status)							
         {
-            $data = array('success' =>true, 'message' => 'Success! Banner Type created successfully.');
+            $type= BannerType::where('id',$bannerTypes->id)->get()->toArray();
+            $data = array('success' =>true, 'message' => 'Success! Banner Type created successfully.','data'=>$type[0]);
             echo json_encode($data);
         }
         else
         {
-            $data = array('success' =>false, 'message' => 'Failed! Something went wrong. Please try again.');
-            echo json_encode($data);
+            return response("Category update failed. Please try again",500);
         }
     }
 
@@ -43,20 +43,30 @@ class BannerTypeController extends Controller
             'typeName' => 'required|max:191',
         ]);
         if ($validatedData->fails()) {
-            return response()->json($validatedData->errors());
+            return response()->json($validatedData->errors(),400);
         }
         if($bannerType->typeName != $request->get('typeName')){
             $validatedData = Validator::make($request->all(),[
                 'typeName' => 'required|unique:banner_types|max:191',
             ]);
             if ($validatedData->fails()) {
-                return response()->json($validatedData->errors());
+                return response()->json($validatedData->errors(),400);
             }
         }
 
         $bannerType->typeName = $request->get('typeName');
         $bannerTypeResponse= $bannerType->save();
-        return response()->json($bannerType->toArray(), 200);
+        $status= response()->json($bannerTypeResponse, 200);
+        if($status)							
+        {
+            $type= BannerType::where('id',$bannerType->id)->get()->toArray();
+            $data = array('success' =>true, 'message' => 'Success! Banner Type updated successfully.','data'=>$type[0]);
+            echo json_encode($data);
+        }
+        else
+        {
+            return response("Category update failed. Please try again",500);
+        }
     } 
 
     public function index()
@@ -64,4 +74,11 @@ class BannerTypeController extends Controller
       $bannerTypes= BannerType::all()->toArray(); 
      return response()->json($bannerTypes, 200);
     } 
+
+    public function destroy($id)
+    {
+      $bannerType= BannerType::find($id);
+      $bannerType->delete();
+      return response()->json($bannerType->toArray(), 200);
+    }
 }

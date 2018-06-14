@@ -56,8 +56,8 @@ class BannerController extends Controller
     }  
     public function index()
     {
-      $banners= Banner::all()->toArray(); 
-      return $banner_response = response()->json($banners, 200);
+      $banners= Banner::with('bannerTypes')->get()->toArray(); 
+      return response()->json($banners, 200);
     }
 
     public function update(Request $request, $id)

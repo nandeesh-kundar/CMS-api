@@ -20,15 +20,16 @@ class CreateMenusTable extends Migration
             $table->string('pageSlug')->nullable();
             $table->text('customLink')->nullable();
             $table->enum('menuType', ['primary', 'secondary', 'sidebar1', 'sidebar2', 'footer1', 'footer2', 'footer3', 'footer4', 'social']);
-            $table->integer('parent_id')->nullable();
+            $table->unsignedInteger('parent_id')->nullable();
             $table->timestamps();
+            $table->foreign('parent_id')
+                    ->references('id')
+                    ->on('menus')
+                    ->onDelete('cascade');
         });
 
-        $table
-        ->foreign('parent_id')
-        ->references('id')
-        ->on('menus')
-        ->onDelete('cascade');
+        
+
     }
 
     /**

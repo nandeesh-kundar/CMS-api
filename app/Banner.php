@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\BannerType;
 use Illuminate\Database\Eloquent\Model;
 
 class Banner extends Model
@@ -13,8 +14,8 @@ class Banner extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function banner_types()
+    public function bannerTypes()
     {
-      return $this->belongsTo('App\BannerType');
+      return $this->belongsTo(BannerType::class, 'banner_types_id');
     }    
 }

@@ -4,19 +4,36 @@ namespace App\Http\Controllers;
 
 use App\Pages;
 use Validator;
+use App\PageSection;
 use App\PageProperty;
 use App\PagePropertyValues;
 use Illuminate\Http\Request;
 
 class PagesController extends Controller
 {
-    public function store(Request $request)
-    {
-        $validatedData = Validator::make($request->all(),[
-            'title' => 'required|unique:pages|max:191'
-        ]);
-        if ($validatedData->fails()) {
-            return response()->json($validatedData->errors());
+    public function store(Request $request){
+        $rules = array(
+            'title' => 'required',
+            'description' => 'required',
+            'sections.*.section_id' => 'required|exists:sections,id',
+            'sections.*.title' => 'required'
+        );
+        $pages=$request->all(); 
+        $flag=false; 
+        if($request->id != null){
+            $pageobj=Pages::find($request->id);
+            if($request->title != $pageobj->title)
+                $flag=true;
+        }else{
+            $pageobj=new Pages();
+            $flag=true;
+        }
+        if($flag){
+            $rules['title']='required|unique:pages';
+        }
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json($validator->errors(),400);
         }
         $string=strip_tags($request->title);
         // Replace special characters with white space
@@ -27,161 +44,37 @@ class PagesController extends Controller
         $string=preg_replace('/[^A-Za-z0-9-]+/','-', $string); 
         // Conver final string to lowercase
         $slug=strtolower($string);
-
-        $files= $request->file('properties');
-        $pages = Pages::create([
-            'title'=> $request->title,
-            'slug'=> $slug,
-            'description'=> $request->description,
-        ]);
-
-
-        $status= response()->json($pages, 200);
-        if($status)							
-        {
-            //add page properties
-            
-            $propertyArray = $request->get('properties');
-            if(is_array($propertyArray)){
-                foreach($propertyArray as $key=>$property){
-                    
-                    if(array_key_exists('propertyId',$property)){
-                        $pageProperty = PageProperty::find($property['propertyId']);
-                        if($pageProperty instanceof PageProperty){
-                            
-                            $pagePropertyValues = new PagePropertyValues();
-                            $pagePropertyValues->pages_id=$pages->id;
-                            $pagePropertyValues->page_property_id=$pageProperty->id;
-                            $pagePropertyValues->propertyValue="";
-                            if(array_key_exists('propertyValue',$property) || $files[$key]!=null){
-                                if($pageProperty->propertyType == "file"){
-                                    $image=$files[$key]['propertyValue'];
-                                    $getimageName = uniqid().time().'.'.$image->getClientOriginalExtension();
-                                    $image->move(public_path('uploads'), $getimageName);
-                                    $pagePropertyValues->propertyValue=$getimageName;
-                                }else{
-                                    $pagePropertyValues->propertyValue=$property['propertyValue'];
-                                }
-                            }
-                            $pagePropertyValues->save();
-                        }
-                    }
+        if($request->id == null){
+            $pageobj->title=$pages['title']; 
+            $pageobj->slug=$slug;
+            $pageobj->save();
+            $pageobj->page_sections()->saveMany(array_map(function($page){
+                $sect=new PageSection();
+                $sect->section_id=$page['section_id'];
+                $sect->title=$page['title'];
+                return $sect;
+            },$pages['sections']));
+        }else{
+            $pageobj=Pages::find($request->id);
+            $pageobj->title=$pages['title']; 
+            $pageobj->slug=$slug;
+            $pageobj->save();
+            $pageobj->page_sections()->saveMany(array_map(function($page){
+                if($page['id']==null){
+                    $sect=new PageSection();
+                    $sect->section_id=$page['section_id'];
+                    $sect->title=$page['title'];
+                }else{
+                    $sect=PageSection::find($page["id"]);
+                    $sect->section_id=$page['section_id'];
+                    $sect->title=$page['title'];
                 }
-            }
-
-            $data = array('success' =>true, 'message' => 'Success! Page property created successfully.');
-            echo json_encode($data);
+                return $sect;
+            },$pages['sections']));
         }
-        else
-        {
-            $data = array('success' =>false, 'message' => 'Failed! Something went wrong. Please try again.');
-            echo json_encode($data);
-        }
+        return response("Page updated successfully",200);
     }
 
-
-    public function update(Request $request)
-    { 
-      
-        $validatedData = Validator::make($request->all(),[
-            'title' => 'required|max:191',
-            'mainId' => 'required|max:191',
-        ]);
-        if ($validatedData->fails()) {
-            return response()->json($validatedData->errors());
-        }
-        $pages = Pages::find($request->get('mainId'));
-        if($pages->title != $request->get('title')){
-            $validatedData = Validator::make($request->all(),[
-                'title' => 'unique:pages'
-            ]);
-            if ($validatedData->fails()) {
-                return response()->json($validatedData->errors());
-            }
-        }
-        $files= $request->file('properties');
-        if(empty($files)){
-            $files=[];
-        }
-        $pages->title=$request->get('title');
-        $slug=preg_replace('/[^A-Za-z0-9-]+/', '-', strtolower($pages->title));
-        $pages->slug=$slug;
-        $pages->save();
-        $status= response()->json($pages, 200);
-        if($status)							
-        {
-            //add page properties
-            
-            $propertyArray = $request->get('properties');
-            if(is_array($propertyArray)){
-
-                // // code by nandeesh
-                $existingPropertyArray = $pages->page_property_values()->get();
-                $existId=[];
-                
-                
-                foreach($propertyArray as $key=>$property){
-                    if(array_key_exists('mainId',$property)){
-                        $existId[]=$property['mainId'];
-                    }
-                }
-
-                foreach($existingPropertyArray as $prop){
-                    if(!(in_array($prop->id, $existId))){
-                        $prop->delete();
-                    }
-                }
-                // //end of code
-
-                foreach($propertyArray as $key=>$property){
-                    
-                    if(array_key_exists('propertyId',$property)){
-                        $pageProperty = PageProperty::find($property['propertyId']);
-                        if($pageProperty instanceof PageProperty){
-                            $flagTest=true;
-                            if(array_key_exists('mainId',$property)){
-                                $testPropertyValues = PagePropertyValues::find($property['mainId']);
-                                if($testPropertyValues instanceof PagePropertyValues){
-                                    $pagePropertyValues = $testPropertyValues;
-                                    $flagTest=false;
-                                }
-                            }
-                            if($flagTest){
-                                $pagePropertyValues = new PagePropertyValues();
-                                $pagePropertyValues->pages_id=$pages->id;
-                                $pagePropertyValues->page_property_id=$pageProperty->id;
-                            }
-
-
-                            if(array_key_exists('propertyValue',$property) || array_key_exists($key,$files)){
-                                if($pageProperty->propertyType == "file"){
-                                    $getimageName="";
-                                    $image=$files[$key]['propertyValue'];
-                                    $getimageName = uniqid().time().'.'.$image->getClientOriginalExtension();
-                                    $image->move(public_path('uploads'), $getimageName);
-                                    $pagePropertyValues->propertyValue=$getimageName;
-                                }else{
-                                    $pagePropertyValues->propertyValue=$property['propertyValue'];
-                                }
-                            }else{
-                                $pagePropertyValues->propertyValue="";
-                            }
-                            $pagePropertyValues->save();
-                        }
-                    }
-                }
-            }
-
-            $data = array('success' =>true, 'message' => 'Success! Page property updated successfully.');
-            echo json_encode($data);
-        }
-        else
-        {
-            $data = array('success' =>false, 'message' => 'Failed! Something went wrong. Please try again.');
-            echo json_encode($data);
-        }       
-        
-    }
     public function index()
     {
       $pages= Pages::all()->toArray(); 
@@ -195,9 +88,18 @@ class PagesController extends Controller
       return response()->json($menu, 200);
     }
 
+    public function sectionDestroy($id)
+    {
+        $pageobj=PageSection::find($id);    
+        $pageobj->delete();
+        return response()->json("Successfully deleted", 200);
+    }
+
     public function destroy($id)
     {
-
+        $pageobj=Pages::find($id);    
+        $pageobj->delete();
+        return response()->json("Successfully deleted", 200);
     }
 
     public function show($id)

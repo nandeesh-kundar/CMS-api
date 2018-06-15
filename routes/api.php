@@ -31,9 +31,14 @@ Route::resource('banner-type', 'BannerTypeController');
 Route::resource('banner', 'BannerController');
 Route::resource('page-property', 'PagePropertyController');
 Route::resource('menu', 'MenuController');//->middleware('route.auth');
-Route::post('page/update', 'PagesController@update')->middleware('route.auth');
-Route::get('page/slug', 'PagesController@pageSlug')->middleware('route.auth');
-Route::resource('page', 'PagesController')->middleware('route.auth');
+Route::resource('pages', 'PagesController');
+Route::delete('pages/section/{id}', 'PagesController@sectionDestroy');
+Route::resource('page-section', 'PagesectionController');
+Route::get('pages/slug', 'PagesController@pageSlug');
+Route::post('section', 'SectionController@updateSection');
+Route::get('section', 'SectionController@indexSection');
+Route::delete('section/{id}', 'SectionController@sectionDelete');
+Route::delete('section-property/{id}', 'SectionController@sectionPropertyDelete');
 Route::middleware('jwt.auth')->get('users', function(Request $request) {
     return auth()->user();
 });

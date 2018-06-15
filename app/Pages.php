@@ -8,12 +8,12 @@ class Pages extends Model
 {
     protected $fillable = ['title', 'slug', 'description'];
 
-    
+
     /**
      * Get the comments for the blog post.
      */
-    public function page_property_values()
+    public function page_sections()
     {
-        return $this->hasMany('App\PagePropertyValues');
+        return $this->hasMany('App\PageSection');
     }
 }

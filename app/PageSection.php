@@ -18,6 +18,6 @@ class PageSection extends Model
 
     public function page_section_props()
     {
-        return $this->hasMany('App\PageSectionProp');
+        return $this->hasMany('App\PageSectionProp','ps_id');
     }
 }

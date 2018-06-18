@@ -11,5 +11,10 @@ class SectionProperties extends Model
     public function sections(){
         return $this->belongsTo('App\Section');
     }
+
+    public function page_section_props()
+    {
+        return $this->hasMany('App\PageSectionProp','prop_id');
+    }
     
 }

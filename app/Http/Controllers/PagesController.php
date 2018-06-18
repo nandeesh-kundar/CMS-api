@@ -48,29 +48,45 @@ class PagesController extends Controller
             $pageobj->title=$pages['title']; 
             $pageobj->slug=$slug;
             $pageobj->save();
-            $pageobj->page_sections()->saveMany(array_map(function($page){
-                $sect=new PageSection();
-                $sect->section_id=$page['section_id'];
-                $sect->title=$page['title'];
-                return $sect;
-            },$pages['sections']));
+            if(array_key_exists('sections',$pages)):
+                $pageobj->page_sections()->saveMany(array_map(function($sectObj){
+                    $sect=new PageSection();
+                    $sect->section_id=$sectObj['section_id'];
+                    $sect->title=$sectObj['title'];
+                    return $sect;
+                },$pages['sections']));
+            endif;
         }else{
             $pageobj=Pages::find($request->id);
             $pageobj->title=$pages['title']; 
             $pageobj->slug=$slug;
             $pageobj->save();
-            $pageobj->page_sections()->saveMany(array_map(function($page){
-                if($page['id']==null){
-                    $sect=new PageSection();
-                    $sect->section_id=$page['section_id'];
-                    $sect->title=$page['title'];
-                }else{
-                    $sect=PageSection::find($page["id"]);
-                    $sect->section_id=$page['section_id'];
-                    $sect->title=$page['title'];
-                }
-                return $sect;
-            },$pages['sections']));
+            if(array_key_exists('sections',$pages)):
+                $pageobj->page_sections()->saveMany(array_map(function($sectObj){
+                    if($sectObj['id']==null){
+                        $sect=new PageSection();
+                        $sect->section_id=$sectObj['section_id'];
+                        $sect->title=$sectObj['title'];
+                    }else{
+                        $sect=PageSection::find($sectObj["id"]);
+                        $sect->section_id=$sectObj['section_id'];
+                        $sect->title=$sectObj['title'];
+                    }
+                    return $sect;
+                },$pages['sections']));
+            // foreach($pages['sections'] as $sect){
+            //     $props=SectionProperties::where('section_id', $sect['section_id']);
+            //     foreach($props as $prop){
+            //         $sectProp = new PageSectionProp();
+            //         $sectProp->ps_id = $sect->id;
+            //         $sectProp->prop_id = $prop->id;
+            //         $sectProp->save();
+            //     }
+            // }
+            foreach($pageobj->page_sections()->get() as $pageSect){
+                $section = \App\Section::where('section_id',$pageSect->id);
+            }
+            endif;
         }
         return response("Page updated successfully",200);
     }

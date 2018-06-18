@@ -6,6 +6,8 @@ use App\Pages;
 use Validator;
 use App\PageSection;
 use App\PageProperty;
+use App\PageSectionProp;
+use App\SectionProperties;
 use App\PagePropertyValues;
 use Illuminate\Http\Request;
 
@@ -62,30 +64,26 @@ class PagesController extends Controller
             $pageobj->slug=$slug;
             $pageobj->save();
             if(array_key_exists('sections',$pages)):
-                $pageobj->page_sections()->saveMany(array_map(function($sectObj){
+                foreach($pages['sections'] as $sectObj){
                     if($sectObj['id']==null){
                         $sect=new PageSection();
+                        $sect->pages_id=$pageobj->id;
                         $sect->section_id=$sectObj['section_id'];
                         $sect->title=$sectObj['title'];
+                        $sect->save();
+                        $props=SectionProperties::where('section_id','=', $sect['section_id'])->get();
+                        foreach($props as $prop){
+                            $sectProp = new PageSectionProp();
+                            $sectProp->ps_id = $sect->id;
+                            $sectProp->prop_id = $prop->id;
+                            $sectProp->save();
+                        }
                     }else{
                         $sect=PageSection::find($sectObj["id"]);
-                        $sect->section_id=$sectObj['section_id'];
                         $sect->title=$sectObj['title'];
+                        $sect->save();
                     }
-                    return $sect;
-                },$pages['sections']));
-            // foreach($pages['sections'] as $sect){
-            //     $props=SectionProperties::where('section_id', $sect['section_id']);
-            //     foreach($props as $prop){
-            //         $sectProp = new PageSectionProp();
-            //         $sectProp->ps_id = $sect->id;
-            //         $sectProp->prop_id = $prop->id;
-            //         $sectProp->save();
-            //     }
-            // }
-            foreach($pageobj->page_sections()->get() as $pageSect){
-                $section = \App\Section::where('section_id',$pageSect->id);
-            }
+                }
             endif;
         }
         return response("Page updated successfully",200);

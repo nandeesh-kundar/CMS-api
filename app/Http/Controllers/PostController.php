@@ -10,7 +10,7 @@ class PostController extends Controller
 {
     public function store(Request $request)
     {
-    $validatedData = Validator::make($request->all(),[
+      $validatedData = Validator::make($request->all(),[
         'post_categories_id' => 'required|exists:post_categories,id',
         'title' => 'required|unique:posts|max:191',
       ]);
@@ -41,11 +41,13 @@ class PostController extends Controller
         echo json_encode($data);
       }
     }
+
     public function show($id)
     {
       $posts= Post::all()->toArray();
      return response()->json($posts, 200);
     }  
+
     public function index()
     {
       $posts= Post::with('post_categories')->get()->toArray(); 
@@ -76,11 +78,11 @@ class PostController extends Controller
       $posts->title = $request->get('title');
       $posts->post_categories_id = $request->get('post_categories_id');
 
-     $image = $request->file('image');
-    $input['image'] = time().'.'.$image->getClientOriginalExtension();
-    $destinationPath = public_path('/uploads');
-    $image->move($destinationPath, $input['image']);
-    $posts->bannerimg = $input['image'];
+      $image = $request->file('image');
+      $input['image'] = time().'.'.$image->getClientOriginalExtension();
+      $destinationPath = public_path('/uploads');
+      $image->move($destinationPath, $input['image']);
+      $posts->bannerimg = $input['image'];
       
       $post_save= $posts->save();
       return $post_edit = response()->json($posts->toArray(), 200);

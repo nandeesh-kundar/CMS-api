@@ -61,6 +61,7 @@ class CreateTableInDatabase extends Migration
             $table->increments('id');
             $table->string('value')->nullable();
             $table->string('link')->nullable();
+            $table->string('type')->nullable();
             $table->unsignedInteger('ps_id');
             $table->unsignedInteger('prop_id');
             $table->timestamps();

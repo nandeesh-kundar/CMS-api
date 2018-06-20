@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 use Validator;
 use App\PageSection;
 use App\PageSectionProp;
-
 use App\PagePropertyValues;
 use Illuminate\Http\Request;
 
@@ -13,9 +12,9 @@ class PagesectionController extends Controller
 
     public function store(Request $request){
         $rules = array(
-            'page_section_id' => 'required:exists:page_sections,id',
+            'page_section_id' => 'required|exists:page_sections,id',
             'properties' => 'required',
-            'properties.*.id' => 'required',
+            'properties.*.id' => 'required|exists:page_section_props,id',
             'properties.*.value' => 'required'
         );   
         $validator = Validator::make($request->all(), $rules);
@@ -27,11 +26,20 @@ class PagesectionController extends Controller
             if($prop['id'] != null)
             {
                 $sectionProp= PageSectionProp::find($prop['id']);
-                $sectionProp->value = $prop['value'];
-                $sectionProp->link = $request->link;
+                if($sectionProp->type == 'file'):
+                    $file=$prop['image_file'];
+                    $image = uniqid().'sect.'.$file->getClientOriginalExtension();
+                    $destinationPath = public_path('/uploads');
+                    $file->move($destinationPath, $image);
+                    $sectionProp->link = "/uploads/".$image;
+                else:
+                    if(array_key_exists('link', $prop))
+                        $sectionProp->link = $prop['link'];
+                endif;
+                $sectionProp->type = $prop['value'];
             }
             return $sectionProp;
-        }, $inputs['properties']));
+        }, $request->properties));
 
         $section->save();
 

@@ -76,6 +76,7 @@ class PagesController extends Controller
                             $sectProp = new PageSectionProp();
                             $sectProp->ps_id = $sect->id;
                             $sectProp->prop_id = $prop->id;
+                            $sectProp->type = $prop->type;
                             $sectProp->save();
                         }
                     }else{

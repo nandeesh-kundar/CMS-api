@@ -11,6 +11,6 @@ class PostCategory extends Model
 
     public function posts()
     {
-        return $this->hasMany('App\Post','post_categories_id');
+        return $this->belongsToMany('App\Post','post_categories_union');
     }
 }

@@ -9,39 +9,10 @@ class PostCategoryController extends Controller
 {
     public function store(Request $request)
     {
-        $validatedData = Validator::make($request->all(),[
-        'title' => 'required|unique:post_categories|max:191',        
-            ]);
-
-         if ($validatedData->fails()) 
-         {
-             return response()->json($validatedData->errors(),400);
-         }
-
-         $image = $request->file('image');
-         $input['image'] = time().'.'.$image->getClientOriginalExtension();
-         $destinationPath = public_path('/uploads');
-         $image->move($destinationPath, $input['image']);
-
-         $postCategories = PostCategory::create([
-            'title'=>$postCategory['title']= $request->title,
-            'description'=>$postCategory['description']= $request->description,
-            'image'=>$postCategory['image']= $input['image']
-        ]);  
-        $status= response()->json($postCategories, 200);    
-        if($status)							
-        {
-            $data = array('success' =>true, 'img_url'=>$input['image'], 'message' => 'Success! Post Category created successfully.');
-            echo json_encode($data);
-        }
-        else
-        {
-            return response("Category update failed. Please try again",500);
-        }
-    }
-    public function update(Request $request, $id)
-    {
-        $postCategory = PostCategory::find($id);
+        if($request->id != null)
+            $postCategory = PostCategory::find($request->id);
+        else   
+            $postCategory = new PostCategory();
         $validatedData = Validator::make($request->all(),[
             'title' => 'required|max:191',
         ]);
@@ -56,27 +27,24 @@ class PostCategoryController extends Controller
                 return response()->json($validatedData->errors(),400);
             }
         }
+        $imageName=null;
+        if($request->file('image') != null):
+            $image = $request->file('image');
+            $imageName = uniqid().'cat.'.$image->getClientOriginalExtension();
+            $destinationPath = public_path('/uploads/cat');
+            $image->move($destinationPath, $imageName);
+            $imageName = "/uploads/cat/".$imageName;
+        endif;
+        $postCategory->title = $request->title;
+        $postCategory->description = $request->description;
+        $postCategory->image= $imageName;
 
-        $image = $request->file('image');
-        $input['image'] = time().'.'.$image->getClientOriginalExtension();
-        $destinationPath = public_path('/uploads');
-        $image->move($destinationPath, $input['image']);
-
-        $postCategory->title = $request->get('title');
-        $postCategory->description = $request->get('description');
-        $postCategory->image = $input['image'];
-        $postCategorysave= $postCategory->save();
-        $status= response()->json($postCategorysave, 200);  
-
-        if($status)							
-        {
-            $data = array('success' =>true, 'img_url'=>$input['image'], 'message' => 'Success! Post Category updated successfully.');
-            echo json_encode($data);
-        }
-        else
-        {
+        try{
+            $postCategory->save();
+            return response()->json($postCategory, 200);  
+        }catch(\Exception $e){
             return response("Category update failed. Please try again",500);
-        }      
+        }
     }
 
     public function index()

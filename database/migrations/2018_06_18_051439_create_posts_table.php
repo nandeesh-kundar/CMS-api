@@ -27,12 +27,20 @@ class CreatePostsTable extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('image')->nullable();
-            $table->unsignedInteger('post_categories_id');
             $table->timestamps();
+        });
 
-            $table->foreign('post_categories_id')
-           ->references('id')->on('post_categories')
-           ->onDelete('cascade');
+        Schema::create('post_categories_union', function (Blueprint $table) {
+            $table->unsignedInteger('post_id')->nullable();
+            $table->unsignedInteger('category_id')->nullable();
+            $table->foreign('post_id')
+                    ->references('id')
+                    ->on('posts')
+                    ->onDelete('cascade');
+            $table->foreign('category_id')
+                    ->references('id')
+                    ->on('post_categories')
+                    ->onDelete('cascade');
         });
     }
 

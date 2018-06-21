@@ -9,7 +9,7 @@ class SectionProperties extends Model
     protected $fillable = ['key', 'type'];
 
     public function sections(){
-        return $this->belongsTo('App\Section');
+        return $this->belongsTo('App\Section','section_id');
     }
 
     public function page_section_props()

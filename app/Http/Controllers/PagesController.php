@@ -16,7 +16,7 @@ class PagesController extends Controller
     public function store(Request $request){
         $rules = array(
             'title' => 'required',
-            'description' => 'required',
+            'sections' =>'array',
             'sections.*.section_id' => 'required|exists:sections,id',
             'sections.*.title' => 'required'
         );
@@ -49,14 +49,30 @@ class PagesController extends Controller
         if($request->id == null){
             $pageobj->title=$pages['title']; 
             $pageobj->slug=$slug;
+            $pageobj->description=$request->description;
             $pageobj->save();
             if(array_key_exists('sections',$pages)):
-                $pageobj->page_sections()->saveMany(array_map(function($sectObj){
-                    $sect=new PageSection();
-                    $sect->section_id=$sectObj['section_id'];
-                    $sect->title=$sectObj['title'];
-                    return $sect;
-                },$pages['sections']));
+                foreach($pages['sections'] as $sectObj){
+                    if($sectObj['id']==null){
+                        $sect=new PageSection();
+                        $sect->pages_id=$pageobj->id;
+                        $sect->section_id=$sectObj['section_id'];
+                        $sect->title=$sectObj['title'];
+                        $sect->save();
+                        $props=SectionProperties::where('section_id','=', $sect['section_id'])->get();
+                        foreach($props as $prop){
+                            $sectProp = new PageSectionProp();
+                            $sectProp->ps_id = $sect->id;
+                            $sectProp->prop_id = $prop->id;
+                            $sectProp->type = $prop->type;
+                            $sectProp->save();
+                        }
+                    }else{
+                        $sect=PageSection::find($sectObj["id"]);
+                        $sect->title=$sectObj['title'];
+                        $sect->save();
+                    }
+                }
             endif;
         }else{
             $pageobj=Pages::find($request->id);

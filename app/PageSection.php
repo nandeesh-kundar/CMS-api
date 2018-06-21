@@ -13,7 +13,7 @@ class PageSection extends Model
     }
 
     public function sections(){
-        return $this->belongsTo('App\Section');
+        return $this->belongsTo('App\Section','section_id');
     }
 
     public function page_section_props()

@@ -65,7 +65,7 @@ class PagePropertyController extends Controller
 
     public function index()
     {
-      $pageProperty= PageProperty::all()->toArray(); 
-     return response()->json($pageProperty, 200);
+        $pageProperty= PageProperty::all()->toArray(); 
+        return response()->json($pageProperty, 200);
     }  
 }

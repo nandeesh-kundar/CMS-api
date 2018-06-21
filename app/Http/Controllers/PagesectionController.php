@@ -13,7 +13,8 @@ class PagesectionController extends Controller
     public function store(Request $request){
         $rules = array(
             'page_section_id' => 'required|exists:page_sections,id',
-            'properties' => 'required',
+            'page_section_title' => 'required',
+            'properties' => 'array',
             'properties.*.id' => 'required|exists:page_section_props,id',
             'properties.*.value' => 'required'
         );   
@@ -44,6 +45,11 @@ class PagesectionController extends Controller
         $section->save();
 
         return response("Section updated successfully",200);
+    }
+
+    public function show($id){
+        $persons = PageSection::with('page_section_props')->where('id','=',$id)->get()->toArray();
+        return $persons;
     }
 
 }

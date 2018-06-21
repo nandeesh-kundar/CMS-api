@@ -28,7 +28,7 @@ class PostCategoryController extends Controller
             }
         }
         $imageName=null;
-        if($request->file('image') != null):
+        if($request->image != null):
             $image = $request->file('image');
             $imageName = uniqid().'cat.'.$image->getClientOriginalExtension();
             $destinationPath = public_path('/uploads/cat');

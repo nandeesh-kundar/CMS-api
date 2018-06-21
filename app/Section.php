@@ -13,7 +13,7 @@ class Section extends Model
      */
     public function section_properties()
     {
-        return $this->hasMany('App\SectionProperties');
+        return $this->hasMany('App\SectionProperties','section_id');
     }
 
     /**
@@ -21,7 +21,7 @@ class Section extends Model
      */
     public function page_sections()
     {
-        return $this->hasMany('App\PageSection');
+        return $this->hasMany('App\PageSection','section_id');
     }
 
 

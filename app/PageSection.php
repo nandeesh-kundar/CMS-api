@@ -9,7 +9,7 @@ class PageSection extends Model
     protected $fillable = ['title'];
 
     public function pages(){
-        return $this->belongsTo('App\Pages');
+        return $this->belongsTo('App\Pages','pages_id');
     }
 
     public function sections(){

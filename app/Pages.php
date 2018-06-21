@@ -14,6 +14,6 @@ class Pages extends Model
      */
     public function page_sections()
     {
-        return $this->hasMany('App\PageSection');
+        return $this->hasMany('App\PageSection','pages_id');
     }
 }

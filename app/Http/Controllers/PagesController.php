@@ -135,6 +135,6 @@ class PagesController extends Controller
 
     public function show($id)
     {
-        return response("hello");
+        return Pages::with('page_sections')->where('id','=',$id)->get()->toArray(); 
     }
 }

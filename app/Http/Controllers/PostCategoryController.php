@@ -27,9 +27,9 @@ class PostCategoryController extends Controller
                 return response()->json($validatedData->errors(),400);
             }
         }
-        $imageName=null;
+        $imageName=null; 
         if($request->image != null):
-            $image = $request->file('image');
+            $image = $request->image;
             $imageName = uniqid().'cat.'.$image->getClientOriginalExtension();
             $destinationPath = public_path('/uploads/cat');
             $image->move($destinationPath, $imageName);
@@ -52,6 +52,12 @@ class PostCategoryController extends Controller
       $postCategories= PostCategory::all()->toArray(); 
      return response()->json($postCategories, 200);
     } 
+    
+    public function show($id)
+    {
+        $postCategories= PostCategory::find($id);
+        return response()->json($postCategories->toArray(), 200);
+    }
     
     public function destroy($id)
     {

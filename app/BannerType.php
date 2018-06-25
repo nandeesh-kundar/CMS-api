@@ -17,17 +17,4 @@ class BannerType extends Model
     {
         return $this->hasMany(Banner::class, 'banner_types_id');
     }
-
-    public static function boot ()
-    {
-        parent::boot();
-
-        self::deleting(function (BannerType $bannerType) {
-
-            foreach ($bannerType->banners as $banner)
-            {
-                $banner->delete();
-            }
-        });
-    }
 }

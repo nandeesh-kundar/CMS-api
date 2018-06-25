@@ -138,7 +138,7 @@ class MenuController extends Controller
 
     public function index()
     {
-      $menu= Menu::with('children', 'parent')->get()->toArray(); 
+      $menu= Menu::with('children')->where('parent_id','=',null)->get()->toArray(); 
       return response()->json($menu, 200);
     }
 

@@ -23,6 +23,7 @@ class PagesectionController extends Controller
             return response()->json($validator->errors(),400);
         }
         $section=PageSection::find($request->page_section_id);
+        $section->title=$request->page_section_title;
         $section->page_section_props()->saveMany(array_map(function($prop){
             if($prop['id'] != null)
             {
@@ -48,8 +49,8 @@ class PagesectionController extends Controller
     }
 
     public function show($id){
-        $persons = PageSection::with('page_section_props')->where('id','=',$id)->get()->toArray();
-        return $persons;
+        $sections = PageSection::with('page_section_props.section_properties')->where('id','=',$id)->get()->toArray();
+        return $sections[0];
     }
 
 }

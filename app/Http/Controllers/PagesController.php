@@ -22,6 +22,7 @@ class PagesController extends Controller
         );
         $pages=$request->all(); 
         $flag=false; 
+        
         if($request->id != null){
             $pageobj=Pages::find($request->id);
             if($request->title != $pageobj->title)
@@ -30,6 +31,7 @@ class PagesController extends Controller
             $pageobj=new Pages();
             $flag=true;
         }
+
         if($flag){
             $rules['title']='required|unique:pages';
         }
@@ -103,7 +105,7 @@ class PagesController extends Controller
                 }
             endif;
         }
-        return response("Page updated successfully",200);
+        return response()->json("Page updated successfully",200);
     }
 
     public function index()
@@ -135,6 +137,6 @@ class PagesController extends Controller
 
     public function show($id)
     {
-        return Pages::with('page_sections')->where('id','=',$id)->get()->toArray(); 
+        return Pages::with('page_sections')->where('id','=',$id)->get()->toArray()[0]; 
     }
 }

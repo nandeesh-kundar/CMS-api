@@ -79,6 +79,7 @@ class PagesController extends Controller
         }else{
             $pageobj=Pages::find($request->id);
             $pageobj->title=$pages['title']; 
+            $pageobj->description=$pages['description']; 
             $pageobj->slug=$slug;
             $pageobj->save();
             if(array_key_exists('sections',$pages)):

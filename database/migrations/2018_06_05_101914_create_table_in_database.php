@@ -59,7 +59,7 @@ class CreateTableInDatabase extends Migration
         
         Schema::create('page_section_props', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('value')->nullable();
+            $table->text('value')->nullable();
             $table->string('link')->nullable();
             $table->string('type')->nullable();
             $table->unsignedInteger('ps_id');

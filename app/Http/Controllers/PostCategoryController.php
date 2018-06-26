@@ -34,10 +34,10 @@ class PostCategoryController extends Controller
             $destinationPath = public_path('/uploads/cat');
             $image->move($destinationPath, $imageName);
             $imageName = "/uploads/cat/".$imageName;
+            $postCategory->image= $imageName;
         endif;
         $postCategory->title = $request->title;
         $postCategory->description = $request->description;
-        $postCategory->image= $imageName;
 
         try{
             $postCategory->save();

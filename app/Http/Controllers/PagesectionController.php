@@ -16,8 +16,8 @@ class PagesectionController extends Controller
             'page_section_title' => 'required',
             'properties' => 'array',
             'properties.*.id' => 'required|exists:page_section_props,id',
-            'properties.*.value' => 'required'
-        );   
+            
+        );   //'properties.*.value' => 'required'
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return response()->json($validator->errors(),400);
@@ -29,23 +29,26 @@ class PagesectionController extends Controller
             {
                 $sectionProp= PageSectionProp::find($prop['id']);
                 if($sectionProp->type == 'file'):
-                    $file=$prop['image_file'];
-                    $image = uniqid().'sect.'.$file->getClientOriginalExtension();
-                    $destinationPath = public_path('/uploads');
-                    $file->move($destinationPath, $image);
-                    $sectionProp->link = "/uploads/".$image;
+                    if(array_key_exists('image_file', $prop)):
+                        $file=$prop['image_file'];
+                        $image = uniqid().'sect.'.$file->getClientOriginalExtension();
+                        $destinationPath = public_path('/uploads/section');
+                        $file->move($destinationPath, $image);
+                        $sectionProp->link = "/uploads/section/".$image;
+                    endif;
                 else:
                     if(array_key_exists('link', $prop))
                         $sectionProp->link = $prop['link'];
                 endif;
-                $sectionProp->type = $prop['value'];
+                if(array_key_exists('value', $prop))
+                    $sectionProp->value = $prop['value'];
             }
             return $sectionProp;
         }, $request->properties));
 
         $section->save();
 
-        return response("Section updated successfully",200);
+        return response()->json("Section updated successfully",200);
     }
 
     public function show($id){

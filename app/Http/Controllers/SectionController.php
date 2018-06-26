@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Validator;
 use App\Section;
+use App\PageSection;
+use App\PageSectionProp;
 use App\SectionProperties;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
@@ -31,16 +33,26 @@ class SectionController extends Controller
                 $sect = Section::find($section["id"]);
                 $sect->title=$section["title"];
                 $sect->save();
-                $sect->section_properties()->saveMany(array_map(function($prop) {
+                foreach($section['properties'] as $prop){
                     if($prop["id"] == null){
-                        return new SectionProperties($prop);
+                        $sprop = new SectionProperties($prop);
+                        $sprop->section_id=$sect->id;
+                        $sprop->save();
+                        $ps=PageSection::where('section_id','=',$sect->id)->get();
+                        foreach($ps as $s){
+                            $sectProp = new PageSectionProp();
+                            $sectProp->ps_id = $s->id;
+                            $sectProp->prop_id = $sprop->id;
+                            $sectProp->type = $sprop->type;
+                            $sectProp->save();
+                        }
                     }else{
                         $sprop = SectionProperties::find($prop["id"]);
                         $sprop->key=$prop['key'];
                         $sprop->type=$prop['type'];
-                        return $sprop;
+                        $sprop->save();
                     }
-                },$section['properties']));
+                }
             }
         }
         return response()->json("Successfully updated.", 200);

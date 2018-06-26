@@ -37,9 +37,9 @@ class BannerController extends Controller
       $image = $request->file('bannerimg');
       if($image != null){
         $input['bannerimg'] = time().'.'.$image->getClientOriginalExtension();
-        $destinationPath = public_path('/uploads');
+        $destinationPath = public_path('/uploads/banner');
         $image->move($destinationPath, $input['bannerimg']);
-        $banners->bannerimg = $input['bannerimg'];
+        $banners->bannerimg = '/uploads/banner'.$input['bannerimg'];
       }
       
       $ss= $banners->save();

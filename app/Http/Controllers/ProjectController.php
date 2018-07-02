@@ -2,50 +2,50 @@
 
 namespace App\Http\Controllers;
 use Validator;
-Use App\PostCategory;
-Use App\Post;
+Use App\ProjectCategory;
+Use App\Project;
 use Illuminate\Http\Request;
 
-class PostController extends Controller
+class ProjectController extends Controller
 {
     public function store(Request $request)
     {
       if($request->id == null)
-        $post = new Post();
+        $project = new Project();
       else
-        $post = Post::find($request->id);
+        $project = Project::find($request->id);
       $validatedData = Validator::make($request->all(),[
           'title' => 'required|max:191',
           'categories' => 'array',
-          'categories.*.id' => 'exists:post_categories,id'
+          'categories.*.id' => 'exists:project_categories,id'
       ]);
       if ($validatedData->fails()) {
           return response()->json($validatedData->errors(),400);
       }
-      if(strtolower($post->title) != strtolower($request->get('title'))){
+      if(strtolower($project->title) != strtolower($request->get('title'))){
           $validatedData = Validator::make($request->all(),[
-              'title' => 'required|unique:posts',
+              'title' => 'required|unique:projects',
           ]);
           if ($validatedData->fails()) {
               return response()->json($validatedData->errors(),400);
           }
       }
 
-      $post->title=$request->title;
-      $post->description = $request->description;
+      $project->title=$request->title;
+      $project->description = $request->description;
       
       $imageName=null;
       if($request->file('image') != null):
           $image = $request->file('image');
-          $imageName = uniqid().'post.'.$image->getClientOriginalExtension();
-          $destinationPath = public_path('/uploads/post');
+          $imageName = uniqid().'project.'.$image->getClientOriginalExtension();
+          $destinationPath = public_path('/uploads/project');
           $image->move($destinationPath, $imageName);
-          $imageName = "/uploads/post/".$imageName;
+          $imageName = "/uploads/project/".$imageName;
       endif;
-      $post->image= $imageName;
+      $project->image= $imageName;
       
       try{
-        $post->save();
+        $project->save();
         $categoryArray=[];
         foreach($request->categories as $category){
             if(array_key_exists('selected',$category)){
@@ -56,20 +56,20 @@ class PostController extends Controller
                 }
             }
         }
-        $post->post_categories()->sync($categoryArray);
-        return response()->json($post, 200);  
+        $project->project_categories()->sync($categoryArray);
+        return response()->json($project, 200);  
       }catch(\Exception $e){
-          return response("Post update failed. Please try again",500);
+          return response("Project update failed. Please try again",500);
       }
     }
 
     public function show($id){
-      return Post::with('post_categories')->where('id','=',$id)->get()[0];
+      return Project::with('project_categories')->where('id','=',$id)->get()[0];
     }
 
     public function index()
     {
-      $post= Post::with('post_categories')->get()->toArray(); 
-     return response()->json($post, 200);
+      $project= Project::with('project_categories')->get()->toArray(); 
+     return response()->json($project, 200);
     } 
 }

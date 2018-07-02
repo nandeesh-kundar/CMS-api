@@ -142,6 +142,13 @@ class MenuController extends Controller
       return response()->json($menu, 200);
     }
 
+    public function show($title){
+        
+      $menus=Menu::with('children')->where('parent_id','=',null)->where('menuType','=',$title)->get();
+      $status= response()->json($menus, 200);
+      return $status;
+    }
+
 
     public function destroy($id)
     {

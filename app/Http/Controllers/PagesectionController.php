@@ -24,6 +24,7 @@ class PagesectionController extends Controller
         }
         $section=PageSection::find($request->page_section_id);
         $section->title=$request->page_section_title;
+        if(is_array($request->properties)):
         $section->page_section_props()->saveMany(array_map(function($prop){
             if($prop['id'] != null)
             {
@@ -36,23 +37,24 @@ class PagesectionController extends Controller
                         $file->move($destinationPath, $image);
                         $sectionProp->link = "/uploads/section/".$image;
                     endif;
+                elseif($sectionProp->type == 'link'):
+                    $sectionProp->link = $prop['value'];
                 else:
-                    if(array_key_exists('link', $prop))
-                        $sectionProp->link = $prop['link'];
-                endif;
-                if(array_key_exists('value', $prop))
                     $sectionProp->value = $prop['value'];
+                endif;
+                // if(array_key_exists('value', $prop))
+                //     $sectionProp->value = $prop['value'];
             }
             return $sectionProp;
         }, $request->properties));
-
+        endif;
         $section->save();
 
         return response()->json("Section updated successfully",200);
     }
 
     public function show($id){
-        $sections = PageSection::with('page_section_props.section_properties')->where('id','=',$id)->get()->toArray();
+        $sections = PageSection::with('page_section_props')->where('id','=',$id)->get()->toArray();
         return $sections[0];
     }
 

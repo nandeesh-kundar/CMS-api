@@ -16,7 +16,7 @@ class SectionController extends Controller
         $rules = array(
             'sections.*.title' => 'required|unique:sections,id,sections.*.id',
             'sections.*.properties.*.key' => 'required',
-            'sections.*.properties.*.type' => 'required|in:string,text,number,file',
+            'sections.*.properties.*.type' => 'required|in:string,text,number,file,link',
         );
         $validator = Validator::make($request->all(), $rules)->validate();
 
@@ -44,6 +44,7 @@ class SectionController extends Controller
                             $sectProp->ps_id = $s->id;
                             $sectProp->prop_id = $sprop->id;
                             $sectProp->type = $sprop->type;
+                            $sectProp->key = $sprop->key;
                             $sectProp->save();
                         }
                     }else{

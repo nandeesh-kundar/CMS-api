@@ -41,6 +41,10 @@ Route::delete('section/{id}', 'SectionController@sectionDelete');
 Route::delete('section-property/{id}', 'SectionController@sectionPropertyDelete');
 Route::resource('post-category', 'PostCategoryController');
 Route::resource('posts', 'PostController');
+Route::resource('project-category', 'ProjectCategoryController');
+Route::resource('projects', 'ProjectController');
+Route::resource('services', 'ServicesController');
+Route::resource('testimonials', 'TestimonialsController');
 Route::middleware('jwt.auth')->get('users', function(Request $request) {
     return auth()->user();
 });

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 Use App\Banner;
+use Validator;
 use App\BannerType;
 use Illuminate\Http\Request;
-use Validator;
 
 class BannerController extends Controller
 {
@@ -46,10 +46,15 @@ class BannerController extends Controller
       return $banner_edit = response()->json($banners->toArray(), 200);
     }  
 
-    public function show($id)
+    public function show($title)
     {
-      $banners= Banner::findOrFail();
+      $banners=BannerType::with('banners')->where('typeName','=',$title)->get();
+      if(sizeof($banners)>0){
+        $banners=$banners[0]->banners;
+      }
+      //$banners= \DB::table('banners')->leftJoin('banner_types', 'banner_types.id', '=', 'banners.banner_types_id')->where('banner_types.typeName','=',$title)->select('banners.*')->get();
       $status= response()->json($banners, 200);
+      return $status;
     }  
 
     public function index()

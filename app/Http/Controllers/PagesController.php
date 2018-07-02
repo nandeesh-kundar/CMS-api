@@ -55,6 +55,9 @@ class PagesController extends Controller
             $pageobj->save();
             if(array_key_exists('sections',$pages)):
                 foreach($pages['sections'] as $sectObj){
+                    if(!array_key_exists('id',$sectObj)){
+                        $sectObj['id']=null;
+                    }
                     if($sectObj['id']==null){
                         $sect=new PageSection();
                         $sect->pages_id=$pageobj->id;
@@ -67,6 +70,7 @@ class PagesController extends Controller
                             $sectProp->ps_id = $sect->id;
                             $sectProp->prop_id = $prop->id;
                             $sectProp->type = $prop->type;
+                            $sectProp->key = $prop->key;
                             $sectProp->save();
                         }
                     }else{
@@ -80,10 +84,12 @@ class PagesController extends Controller
             $pageobj=Pages::find($request->id);
             $pageobj->title=$pages['title']; 
             $pageobj->description=$pages['description']; 
-            $pageobj->slug=$slug;
             $pageobj->save();
             if(array_key_exists('sections',$pages)):
                 foreach($pages['sections'] as $sectObj){
+                    if(!array_key_exists('id',$sectObj)){
+                        $sectObj['id']=null;
+                    }
                     if($sectObj['id']==null){
                         $sect=new PageSection();
                         $sect->pages_id=$pageobj->id;
@@ -96,6 +102,7 @@ class PagesController extends Controller
                             $sectProp->ps_id = $sect->id;
                             $sectProp->prop_id = $prop->id;
                             $sectProp->type = $prop->type;
+                            $sectProp->key = $prop->key;
                             $sectProp->save();
                         }
                     }else{
@@ -106,7 +113,7 @@ class PagesController extends Controller
                 }
             endif;
         }
-        return response()->json("Page updated successfully",200);
+        return response()->json(['data' => $pageobj],200);
     }
 
     public function index()

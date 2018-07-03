@@ -107,4 +107,15 @@ class ServicesController  extends Controller
       $service= Services::with('service_galeries')->get()->toArray(); 
      return response()->json($service, 200);
     } 
+
+    public function deleteGaleryImage($id){
+        $gallery=ServiceGalery::find($id);
+        try{
+            unlink(public_path($gallery->image));
+            $gallery->delete();
+            return response()->json("Successfully deleted.", 200);
+        }catch(\Exception $e){
+            return response()->json($e->getMessage(), 404);
+        }
+    }
 }

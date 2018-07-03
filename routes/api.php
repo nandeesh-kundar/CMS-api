@@ -44,6 +44,7 @@ Route::resource('posts', 'PostController');
 Route::resource('project-category', 'ProjectCategoryController');
 Route::resource('projects', 'ProjectController');
 Route::resource('services', 'ServicesController');
+Route::delete('services/gallery/{id}', 'ServicesController@deleteGaleryImage');
 Route::resource('testimonials', 'TestimonialsController');
 Route::middleware('jwt.auth')->get('users', function(Request $request) {
     return auth()->user();

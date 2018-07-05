@@ -72,4 +72,11 @@ class PostController extends Controller
       $post= Post::with('post_categories')->get()->toArray(); 
      return response()->json($post, 200);
     } 
+
+    public function destroy($id)
+    {
+        $post=Post::find($id);    
+        $post->delete();
+        return response()->json("Successfully deleted", 200);
+    }
 }

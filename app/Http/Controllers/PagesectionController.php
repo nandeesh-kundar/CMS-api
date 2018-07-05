@@ -58,4 +58,26 @@ class PagesectionController extends Controller
         return $sections[0];
     }
 
+    public function showOuterSection($id){
+        $sections = PageSection::with('page_section_props')->where('id','=',$id)->get()->toArray();
+        $sectionData=[];
+
+        // converting to pure json object
+        if(sizeof($sections)>0){
+            $section = $sections[0];
+            $sectionData['title']=$section['title'];
+            $propArray=[];
+            foreach($section['page_section_props'] as $prop){
+                $value='';
+                if($prop['type']=='link' || $prop['type']=='file')
+                    $value=$prop['link'];
+                else
+                    $value=$prop['value'];
+                $propArray[$prop['key']]=$value;
+            }
+            $sectionData['properties']=$propArray;
+        }
+        return $sectionData;
+    }
+
 }

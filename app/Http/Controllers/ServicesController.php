@@ -52,12 +52,12 @@ class ServicesController  extends Controller
 
       if($request->file('image') instanceof UploadedFile):
             $imageName=null;
-          $image = $request->file('image');
-          $imageName = uniqid().'services.'.$image->getClientOriginalExtension();
-          $destinationPath = public_path('/uploads/services');
-          $image->move($destinationPath, $imageName);
-          $imageName = "/uploads/services/".$imageName;
-          $service->featuredImage= $imageName;
+            $image = $request->file('image');
+            $imageName = uniqid().'services.'.$image->getClientOriginalExtension();
+            $destinationPath = public_path('/uploads/services');
+            $image->move($destinationPath, $imageName);
+            $imageName = "/uploads/services/".$imageName;
+            $service->featuredImage= $imageName;
       endif;
       $service->save();
       if(is_array($request->gallery)):
@@ -66,6 +66,9 @@ class ServicesController  extends Controller
                 $gimage['id']=null;
             endif;
             if($gimage['id']==null){
+                if(!(array_key_exists('image',$gimage))){
+                    $gimage['image']=null;
+                }
                 if($gimage['image'] instanceof UploadedFile):
                     $galeeryObj = new ServiceGalery();
                     $galeeryObj->title=$service->title;
@@ -81,6 +84,9 @@ class ServicesController  extends Controller
             }else{
                 $galeeryObj = ServiceGalery::find($gimage['id']);
                 $galeeryObj->title=$service->title;
+                if(!(array_key_exists('image',$gimage))){
+                    $gimage['image']=null;
+                }
                 if($gimage['image'] instanceof UploadedFile):
                     $image = $gimage['image'];
                     $imageName = uniqid().'gallery.'.$image->getClientOriginalExtension();
@@ -104,7 +110,7 @@ class ServicesController  extends Controller
 
     public function index()
     {
-      $service= Services::with('service_galeries')->get()->toArray(); 
+      $service= Services::with('service_galeries')->orderBy('id', 'DESC')->get()->toArray(); 
      return response()->json($service, 200);
     } 
 
@@ -117,5 +123,12 @@ class ServicesController  extends Controller
         }catch(\Exception $e){
             return response()->json($e->getMessage(), 404);
         }
+    }
+
+    public function destroy($id)
+    {
+        $service=Services::find($id);    
+        $service->delete();
+        return response()->json("Successfully deleted", 200);
     }
 }

@@ -11,6 +11,6 @@ class ProjectCategory extends Model
 
     public function projects()
     {
-        return $this->belongsToMany('App\Project','project_categories_union');
+        return $this->belongsToMany('App\Project','project_categories_union', 'category_id','project_id');
     }
 }

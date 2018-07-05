@@ -49,7 +49,7 @@ class ProjectCategoryController extends Controller
 
     public function index()
     {
-      $projectCategories= ProjectCategory::all()->toArray(); 
+      $projectCategories= ProjectCategory::with('projects')->get()->toArray(); 
      return response()->json($projectCategories, 200);
     } 
     
@@ -62,7 +62,7 @@ class ProjectCategoryController extends Controller
     public function destroy($id)
     {
         $projectCategories= ProjectCategory::find($id);
-        $projectCategories->delete();
+       // $projectCategories->delete();
         return response()->json($projectCategories->toArray(), 200);
     }
 }

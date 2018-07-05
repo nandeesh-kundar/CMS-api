@@ -68,7 +68,7 @@ class SectionController extends Controller
     public function sectionDelete($id){
         $sect = Section::find($id);
         try{
-            $sect->delete();
+          //  $sect->delete();
             return response()->json("Successfully deleted.", 200);
         }catch(\Exception $e){
             return response()->json($e->getMessage(), 404);

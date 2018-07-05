@@ -34,15 +34,15 @@ class ProjectController extends Controller
       $project->title=$request->title;
       $project->description = $request->description;
       
-      $imageName=null;
       if($request->file('image') != null):
+        $imageName=null;
           $image = $request->file('image');
           $imageName = uniqid().'project.'.$image->getClientOriginalExtension();
           $destinationPath = public_path('/uploads/project');
           $image->move($destinationPath, $imageName);
           $imageName = "/uploads/project/".$imageName;
+          $project->image= $imageName;
       endif;
-      $project->image= $imageName;
       
       try{
         $project->save();
@@ -72,4 +72,11 @@ class ProjectController extends Controller
       $project= Project::with('project_categories')->get()->toArray(); 
      return response()->json($project, 200);
     } 
+
+    public function destroy($id)
+    {
+        $project=Project::find($id);    
+        $project->delete();
+        return response()->json("Successfully deleted", 200);
+    }
 }

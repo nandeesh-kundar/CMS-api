@@ -2,27 +2,28 @@
 
 namespace App\Http\Controllers;
 use Validator;
-use App\Testimonials;
+use App\Partners;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 
-class TestimonialsController  extends Controller
+class PartnersController  extends Controller
 {
     public function store(Request $request)
     {
       if($request->id == null)
-        $testimonial = new Testimonials();
+        $partner = new Partners();
       else
-        $testimonial = Testimonials::find($request->id);
+        $partner = Partners::find($request->id);
       $validatedData = Validator::make($request->all(),[
-          'title' => 'required|max:191'
+          'title' => 'required|max:191',
+          'image' => 'required',
       ]);
       if ($validatedData->fails()) {
           return response()->json($validatedData->errors(),400);
       }
-      if(strtolower($testimonial->title) != strtolower($request->get('title'))){
+      if(strtolower($partner->title) != strtolower($request->get('title'))){
           $validatedData = Validator::make($request->all(),[
-              'title' => 'required|unique:testimonials',
+              'title' => 'required|unique:services',
           ]);
           if ($validatedData->fails()) {
               return response()->json($validatedData->errors(),400);
@@ -31,7 +32,7 @@ class TestimonialsController  extends Controller
 
       
 
-      $testimonial->title=$request->title;
+      $partner->title=$request->title;
       if($request->id == null){
         $string=strip_tags($request->title);
         // Replace special characters with white space
@@ -42,43 +43,40 @@ class TestimonialsController  extends Controller
         $string=preg_replace('/[^A-Za-z0-9-]+/','-', $string); 
         // Conver final string to lowercase
         $slug=strtolower($string);
-        $testimonial->slug=$slug;
+        $partner->slug=$slug;
       }
-      $testimonial->description = $request->description;
-      $testimonial->shortDescription = $request->shortDescription;
+      $partner->description = $request->description;
+      $partner->shortDescription = $request->shortDescription;
 
       if($request->file('image') instanceof UploadedFile):
             $imageName=null;
-          $image = $request->file('image');
-          $imageName = uniqid().'testimonials.'.$image->getClientOriginalExtension();
-          $destinationPath = public_path('/uploads/testimonials');
-          $image->move($destinationPath, $imageName);
-          $imageName = "/uploads/testimonials/".$imageName;
-          $testimonial->featuredImage= $imageName;
+            $image = $request->file('image');
+            $imageName = uniqid().'services.'.$image->getClientOriginalExtension();
+            $destinationPath = public_path('/uploads/services');
+            $image->move($destinationPath, $imageName);
+            $imageName = "/uploads/services/".$imageName;
+            $partner->featuredImage= $imageName;
       endif;
-      $testimonial->save();
-
-      
-
-      $testimonials = Testimonials::find($testimonial->id);
-      return response()->json($testimonials, 200);  
+      $partner->save();
+      $partners = Partners::where('id','=',$partner->id)->get()[0];
+      return response()->json($partners, 200);  
     }
 
     public function show($id){
-        $testimonial= Testimonials::find($id);
-        return response()->json($testimonial, 200);
+        $partner= Partners::where('id','=',$id)->get()[0];
+        return response()->json($partner, 200);
     }
 
     public function index()
     {
-      $testimonial= Testimonials::all()->toArray(); 
-     return response()->json($testimonial, 200);
+      $partner= Partners::orderBy('id', 'DESC')->get()->toArray(); 
+     return response()->json($partner, 200);
     } 
 
     public function destroy($id)
     {
-        $testimonial=Testimonials::find($id);    
-        $testimonial->delete();
+        $partner=Partners::find($id);    
+        $partner->delete();
         return response()->json("Successfully deleted", 200);
     }
 }
